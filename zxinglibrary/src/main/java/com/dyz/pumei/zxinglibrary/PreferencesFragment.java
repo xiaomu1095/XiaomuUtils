@@ -33,7 +33,6 @@ import java.util.Collection;
 /**
  * Implements support for barcode scanning preferences.
  *
- * @see PreferencesActivity
  */
 public final class PreferencesFragment 
     extends PreferenceFragment 

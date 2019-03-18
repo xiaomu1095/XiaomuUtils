@@ -16,33 +16,29 @@
 
 package com.dyz.pumei.zxinglibrary.result;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.net.Uri;
+import android.provider.ContactsContract;
 import android.telephony.PhoneNumberUtils;
+import android.util.Log;
 
 import com.dyz.pumei.zxinglibrary.Contents;
 import com.dyz.pumei.zxinglibrary.Intents;
 import com.dyz.pumei.zxinglibrary.LocaleManager;
-import com.dyz.pumei.zxinglibrary.PreferencesActivity;
 import com.dyz.pumei.zxinglibrary.R;
 import com.google.zxing.Result;
 import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.ParsedResultType;
 import com.google.zxing.client.result.ResultParser;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
-import android.util.Log;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Locale;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * A base class for the Android-specific barcode handlers. These allow the app to polymorphically

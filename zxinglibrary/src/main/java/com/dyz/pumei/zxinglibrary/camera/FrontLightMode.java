@@ -18,8 +18,6 @@ package com.dyz.pumei.zxinglibrary.camera;
 
 import android.content.SharedPreferences;
 
-import com.dyz.pumei.zxinglibrary.PreferencesActivity;
-
 /**
  * Enumerates settings of the preference controlling the front light.
  */

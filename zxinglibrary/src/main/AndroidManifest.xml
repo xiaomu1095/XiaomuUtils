@@ -33,8 +33,5 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".PreferencesActivity"
-            android:label="@string/preferences_name"
-            android:stateNotNeeded="true"/>
     </application>
 </manifest>
