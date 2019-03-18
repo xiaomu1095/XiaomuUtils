@@ -21,8 +21,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -35,8 +33,6 @@ import android.widget.Toast;
 
 import com.dyz.pumei.zxinglibrary.camera.CameraManager;
 import com.dyz.pumei.zxinglibrary.clipboard.ClipboardInterface;
-import com.dyz.pumei.zxinglibrary.history.HistoryItem;
-import com.dyz.pumei.zxinglibrary.history.HistoryManager;
 import com.dyz.pumei.zxinglibrary.result.ResultHandler;
 import com.dyz.pumei.zxinglibrary.result.ResultHandlerFactory;
 import com.google.zxing.BarcodeFormat;
@@ -44,7 +40,6 @@ import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
 import com.google.zxing.ResultMetadataType;
 import com.google.zxing.ResultPoint;
-import com.google.zxing.integration.android.IntentIntegrator;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -83,7 +78,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private Collection<BarcodeFormat> decodeFormats;
   private Map<DecodeHintType,?> decodeHints;
   private String characterSet;
-  private HistoryManager historyManager;
   private BeepManager beepManager;
   private AmbientLightManager ambientLightManager;
 
@@ -147,10 +141,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     openCameraWithPermission();
     
-    // historyManager must be initialized here to update the history preference
-    historyManager = new HistoryManager(this);
-    historyManager.trimHistory();
-
     // CameraManager must be initialized here, not in onCreate(). This is necessary because we don't
     // want to open the camera driver and measure the screen size if we're going to show the help on
     // first launch. That led to bugs where the scanning rectangle was the wrong size and partially
@@ -333,13 +323,13 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    if (resultCode == RESULT_OK && requestCode == HISTORY_REQUEST_CODE && historyManager != null) {
-      int itemNumber = intent.getIntExtra(Intents.History.ITEM_NUMBER, -1);
-      if (itemNumber >= 0) {
-        HistoryItem historyItem = historyManager.buildHistoryItem(itemNumber);
-        decodeOrStoreSavedBitmap(null, historyItem.getResult());
-      }
-    }
+//    if (resultCode == RESULT_OK && requestCode == HISTORY_REQUEST_CODE && historyManager != null) {
+//      int itemNumber = intent.getIntExtra(Intents.History.ITEM_NUMBER, -1);
+//      if (itemNumber >= 0) {
+//        HistoryItem historyItem = historyManager.buildHistoryItem(itemNumber);
+//        decodeOrStoreSavedBitmap(null, historyItem.getResult());
+//      }
+//    }
   }
 
   private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
@@ -392,7 +382,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     boolean fromLiveScan = barcode != null;
     if (fromLiveScan) {
-      historyManager.addHistoryItem(rawResult, resultHandler);
+//      historyManager.addHistoryItem(rawResult, resultHandler);
       // Then not from history, so beep/vibrate and we have an image to draw on
       beepManager.playBeepSoundAndVibrate();
       drawResultPoints(barcode, scaleFactor, rawResult);
