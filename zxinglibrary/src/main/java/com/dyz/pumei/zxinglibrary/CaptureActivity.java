@@ -74,7 +74,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private boolean copyToClipboard;
   private IntentSource source;
   private String sourceUrl;
-  private ScanFromWebPageManager scanFromWebPageManager;
   private Collection<BarcodeFormat> decodeFormats;
   private Map<DecodeHintType,?> decodeHints;
   private String characterSet;
@@ -154,8 +153,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     handler = null;
     lastResult = null;
 
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
+//    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 //    if (prefs.getBoolean(PreferencesActivity.KEY_DISABLE_AUTO_ORIENTATION, true)) {
 //      setRequestedOrientation(getCurrentOrientation());
 //    } else {
@@ -163,7 +161,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 //    }
 
     resetStatusView();
-
 
     beepManager.updatePrefs();
     ambientLightManager.start(cameraManager);
@@ -176,12 +173,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     source = IntentSource.NONE;
     sourceUrl = null;
-    scanFromWebPageManager = null;
     decodeFormats = null;
     characterSet = null;
 
     if (intent != null) {
-
       String action = intent.getAction();
       String dataString = intent.getDataString();
 
@@ -211,10 +206,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         if (customPromptMessage != null) {
           statusView.setText(customPromptMessage);
         }
-
       }
       characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
-
     }
 
     SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
@@ -269,11 +262,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   }
 
   @Override
-  protected void onDestroy() {
-    super.onDestroy();
-  }
-
-  @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
     switch (keyCode) {
       case KeyEvent.KEYCODE_BACK:
@@ -300,33 +288,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         return true;
     }
     return super.onKeyDown(keyCode, event);
-  }
-
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    Intent intent = new Intent(Intent.ACTION_VIEW);
-    intent.addFlags(Intents.FLAG_NEW_DOC);
-    int i = item.getItemId();
-    if (i == R.id.menu_share) {
-    } else if (i == R.id.menu_history) {
-    } else if (i == R.id.menu_settings) {
-    } else if (i == R.id.menu_help) {
-    } else {
-      return super.onOptionsItemSelected(item);
-    }
-    return true;
-  }
-
-  @Override
-  public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-//    if (resultCode == RESULT_OK && requestCode == HISTORY_REQUEST_CODE && historyManager != null) {
-//      int itemNumber = intent.getIntExtra(Intents.History.ITEM_NUMBER, -1);
-//      if (itemNumber >= 0) {
-//        HistoryItem historyItem = historyManager.buildHistoryItem(itemNumber);
-//        decodeOrStoreSavedBitmap(null, historyItem.getResult());
-//      }
-//    }
   }
 
   private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
@@ -391,11 +352,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         handleDecodeExternally(rawResult, resultHandler, barcode);
         break;
       case ZXING_LINK:
-        if (scanFromWebPageManager == null || !scanFromWebPageManager.isScanFromWebPage()) {
-          handleDecodeInternally(rawResult, resultHandler, barcode);
-        } else {
-          handleDecodeExternally(rawResult, resultHandler, barcode);
-        }
         break;
       case NONE:
 //        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -458,11 +414,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
   // Put up our own UI for how to handle the decoded contents.
   private void handleDecodeInternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
-
     maybeSetClipboard(resultHandler);
-
 //    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
 //    if (resultHandler.getDefaultButtonID() != null && prefs.getBoolean(PreferencesActivity.KEY_AUTO_OPEN_WEB, false)) {
 //      resultHandler.handleButtonPress(resultHandler.getDefaultButtonID());
 //      return;
@@ -473,7 +426,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     CharSequence displayContents = resultHandler.getDisplayContents();
     Toast.makeText(this, displayContents, Toast.LENGTH_SHORT).show();
-
   }
 
   // Briefly show the contents of the barcode, then handle the result outside Barcode Scanner.
@@ -550,11 +502,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         break;
         
       case ZXING_LINK:
-        if (scanFromWebPageManager != null && scanFromWebPageManager.isScanFromWebPage()) {
-          String linkReplyURL = scanFromWebPageManager.buildReplyURL(rawResult, resultHandler);
-          scanFromWebPageManager = null;
-          sendReplyMessage(R.id.launch_product_query, linkReplyURL, resultDurationMS);
-        }
         break;
     }
   }
