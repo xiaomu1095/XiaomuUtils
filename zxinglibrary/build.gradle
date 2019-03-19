@@ -30,5 +30,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     api 'com.google.zxing:core:3.3.3'
 //    api 'com.google.zxing:android-integration:3.3.0'
-    api 'com.google.zxing:android-core:3.3.0'
+//    api 'com.google.zxing:android-core:3.3.0'
 }
