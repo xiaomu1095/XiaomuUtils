@@ -16,7 +16,14 @@
 
 package com.dyz.pumei.zxinglibrary;
 
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
+
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
@@ -24,12 +31,6 @@ import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
-
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
@@ -73,6 +74,19 @@ final class DecodeHandler extends Handler {
   private void decode(byte[] data, int width, int height) {
     long start = System.nanoTime();
     Result rawResult = null;
+    // Code added to enable portrait mode
+    if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+      byte[] rotatedData = new byte[data.length];
+      for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++)
+          rotatedData[x * height + height - y - 1] = data[x + y * width];
+      }
+      data = rotatedData;
+      int tmp = width;
+      width = height;
+      height = tmp;
+      Log.d(TAG, "Customized code for portrait mode in decode executed (Piyush Merja) ");
+    }//end
     PlanarYUVLuminanceSource source = activity.getCameraManager().buildLuminanceSource(data, width, height);
     if (source != null) {
       BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));

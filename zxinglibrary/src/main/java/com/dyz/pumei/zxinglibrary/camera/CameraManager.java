@@ -17,6 +17,7 @@
 package com.dyz.pumei.zxinglibrary.camera;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
@@ -222,8 +223,23 @@ public final class CameraManager {
         return null;
       }
 
-      int width = findDesiredDimensionInRange(screenResolution.x, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
-      int height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
+//      int width = findDesiredDimensionInRange(screenResolution.x, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
+//      int height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
+      // Code added to enable portrait mode
+      int width = MIN_FRAME_WIDTH;
+      int height = MIN_FRAME_HEIGHT;
+      if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+        int tmp = 2 * screenResolution.x / 3;
+        width = (tmp) < MIN_FRAME_WIDTH ? MIN_FRAME_WIDTH : (tmp);
+
+        tmp = screenResolution.y / 3;
+        height = (tmp) < MIN_FRAME_WIDTH ? MIN_FRAME_WIDTH : ((tmp) > MAX_FRAME_HEIGHT ? MAX_FRAME_HEIGHT : (tmp));
+        Log.d(TAG, "Customized code for portrait mode in getFramingRect executed (Piyush Merja) ");
+      }else{
+        // Original Code
+        width = findDesiredDimensionInRange(screenResolution.x, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
+        height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
+      } // End
 
       int leftOffset = (screenResolution.x - width) / 2;
       int topOffset = (screenResolution.y - height) / 2;
@@ -263,10 +279,23 @@ public final class CameraManager {
         // Called early, before init even finished
         return null;
       }
-      rect.left = rect.left * cameraResolution.x / screenResolution.x;
-      rect.right = rect.right * cameraResolution.x / screenResolution.x;
-      rect.top = rect.top * cameraResolution.y / screenResolution.y;
-      rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+//      rect.left = rect.left * cameraResolution.x / screenResolution.x;
+//      rect.right = rect.right * cameraResolution.x / screenResolution.x;
+//      rect.top = rect.top * cameraResolution.y / screenResolution.y;
+//      rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+
+      if (screenResolution.x < screenResolution.y) {// 下面为竖屏模式
+        rect.left = rect.left * cameraResolution.y / screenResolution.x;
+        rect.right = rect.right * cameraResolution.y / screenResolution.x;
+        rect.top = rect.top * cameraResolution.x / screenResolution.y;
+        rect.bottom = rect.bottom * cameraResolution.x / screenResolution.y;
+      } else {
+        // 下面为横屏模式
+        rect.left = rect.left * cameraResolution.x / screenResolution.x;
+        rect.right = rect.right * cameraResolution.x / screenResolution.x;
+        rect.top = rect.top * cameraResolution.y / screenResolution.y;
+        rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+      }
       framingRectInPreview = rect;
     }
     return framingRectInPreview;
