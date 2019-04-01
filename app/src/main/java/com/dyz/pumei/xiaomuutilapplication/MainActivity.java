@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.dyz.pumei.zxinglibrary.CaptureActivity;
 
@@ -20,6 +21,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+    }
+
+    public void clickCamera(View view){
         Intent intent = new Intent();
         intent.setClass(this, CaptureActivity.class);
         startActivity(intent);
