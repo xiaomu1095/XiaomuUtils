@@ -167,9 +167,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     Intent intent = getIntent();
 
-      copyToClipboard = true;
-//    copyToClipboard = prefs.getBoolean(PreferencesActivity.KEY_COPY_TO_CLIPBOARD, true)
-//        && (intent == null || intent.getBooleanExtra(Intents.Scan.SAVE_HISTORY, true));
+    copyToClipboard = true;
 
     source = IntentSource.NONE;
     sourceUrl = null;
@@ -178,10 +176,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     if (intent != null) {
       String action = intent.getAction();
-      String dataString = intent.getDataString();
 
       if (Intents.Scan.ACTION.equals(action)) {
-
         // Scan the formats the intent requested, and return the result to the calling activity.
         source = IntentSource.NATIVE_APP_INTENT;
         decodeFormats = DecodeFormatManager.parseDecodeFormats(intent);
@@ -340,7 +336,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     boolean fromLiveScan = barcode != null;
     if (fromLiveScan) {
-//      historyManager.addHistoryItem(rawResult, resultHandler);
       // Then not from history, so beep/vibrate and we have an image to draw on
       beepManager.playBeepSoundAndVibrate();
       drawResultPoints(barcode, scaleFactor, rawResult);
@@ -349,22 +344,12 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     switch (source) {
       case NATIVE_APP_INTENT:
       case PRODUCT_SEARCH_LINK:
-        handleDecodeExternally(rawResult, resultHandler, barcode);
+//        handleDecodeExternally(rawResult, resultHandler, barcode);
         break;
       case ZXING_LINK:
         break;
       case NONE:
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-//        if (fromLiveScan && prefs.getBoolean(PreferencesActivity.KEY_BULK_MODE, false)) {
-//          Toast.makeText(getApplicationContext(),
-//                         getResources().getString(R.string.msg_bulk_mode_scanned) + " (" + rawResult.getText() + ')',
-//                         Toast.LENGTH_SHORT).show();
-//          maybeSetClipboard(resultHandler);
-//          // Wait a moment or else it will scan the same barcode continuously about 3 times
-//          restartPreviewAfterDelay(BULK_MODE_SCAN_DELAY_MS);
-//        } else {
           handleDecodeInternally(rawResult, resultHandler, barcode);
-//        }
         break;
     }
   }
@@ -415,11 +400,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   // Put up our own UI for how to handle the decoded contents.
   private void handleDecodeInternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
     maybeSetClipboard(resultHandler);
-//    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-//    if (resultHandler.getDefaultButtonID() != null && prefs.getBoolean(PreferencesActivity.KEY_AUTO_OPEN_WEB, false)) {
-//      resultHandler.handleButtonPress(resultHandler.getDefaultButtonID());
-//      return;
-//    }
 
     statusView.setVisibility(View.GONE);
     viewfinderView.setVisibility(View.GONE);
@@ -430,7 +410,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
   // Briefly show the contents of the barcode, then handle the result outside Barcode Scanner.
   private void handleDecodeExternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
-
     if (barcode != null) {
       viewfinderView.drawResultBitmap(barcode);
     }
