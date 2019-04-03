@@ -77,8 +77,6 @@ public abstract class ResultHandler {
   };
   private static final int NO_TYPE = -1;
 
-  public static final int MAX_BUTTON_COUNT = 4;
-
   private final ParsedResult result;
   private final Activity activity;
   private final Result rawResult;
@@ -108,32 +106,6 @@ public abstract class ResultHandler {
   }
 
   /**
-   * Indicates how many buttons the derived class wants shown.
-   *
-   * @return The integer button count.
-   */
-  public abstract int getButtonCount();
-
-  /**
-   * The text of the nth action button.
-   *
-   * @param index From 0 to getButtonCount() - 1
-   * @return The button text as a resource ID
-   */
-  public abstract int getButtonText(int index);
-
-  public Integer getDefaultButtonID() {
-    return null;
-  }
-
-  /**
-   * Execute the action which corresponds to the nth button.
-   *
-   * @param index The button that was clicked.
-   */
-  public abstract void handleButtonPress(int index);
-
-  /**
    * Some barcode contents are considered secure, and should not be saved to history, copied to
    * the clipboard, or otherwise persisted.
    *
@@ -152,13 +124,6 @@ public abstract class ResultHandler {
     String contents = result.getDisplayResult();
     return contents.replace("\r", "");
   }
-
-  /**
-   * A string describing the kind of barcode that was found, e.g. "Found contact info".
-   *
-   * @return The resource ID of the string.
-   */
-  public abstract int getDisplayTitle();
 
   /**
    * A convenience method to get the parsed type. Should not be overridden.
