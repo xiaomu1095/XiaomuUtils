@@ -30,8 +30,6 @@ import android.widget.Toast;
 
 import com.dyz.pumei.zxinglibrary.camera.CameraManager;
 import com.dyz.pumei.zxinglibrary.clipboard.ClipboardInterface;
-import com.dyz.pumei.zxinglibrary.result.ResultHandler;
-import com.dyz.pumei.zxinglibrary.result.ResultHandlerFactory;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
@@ -316,7 +314,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    */
   public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
     lastResult = rawResult;
-    ResultHandler resultHandler = ResultHandlerFactory.makeResultHandler(this, rawResult);
 
     boolean fromLiveScan = barcode != null;
     if (fromLiveScan) {
@@ -333,7 +330,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       case ZXING_LINK:
         break;
       case NONE:
-          handleDecodeInternally(rawResult, resultHandler, barcode);
+          handleDecodeInternally(rawResult, barcode);
         break;
     }
   }
@@ -382,19 +379,19 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   }
 
   // Put up our own UI for how to handle the decoded contents.
-  private void handleDecodeInternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
-    maybeSetClipboard(resultHandler);
+  private void handleDecodeInternally(Result rawResult, Bitmap barcode) {
+    maybeSetClipboard(rawResult);
 
     statusView.setVisibility(View.GONE);
     viewfinderView.setVisibility(View.GONE);
 
-    CharSequence displayContents = resultHandler.getDisplayContents();
+    CharSequence displayContents = rawResult.getText();
     Toast.makeText(this, displayContents, Toast.LENGTH_SHORT).show();
   }
 
-  private void maybeSetClipboard(ResultHandler resultHandler) {
-    if (copyToClipboard && !resultHandler.areContentsSecure()) {
-      ClipboardInterface.setText(resultHandler.getDisplayContents(), this);
+  private void maybeSetClipboard(Result rawResult) {
+    if (copyToClipboard) {
+      ClipboardInterface.setText(rawResult.getText(), this);
     }
   }
   
