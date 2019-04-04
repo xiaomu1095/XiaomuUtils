@@ -10,8 +10,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:logo="@drawable/launcher_icon"
-        tools:replace="android:icon,android:logo,android:label,android:allowBackup"
+        tools:replace="android:label,android:allowBackup"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="com.xiaomu.xiaomuutilapplication.MainActivity">
             <intent-filter>

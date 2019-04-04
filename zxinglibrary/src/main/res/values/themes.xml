@@ -15,6 +15,7 @@
  limitations under the License.
  -->
 <resources>
+  <style name="zxing_capture_theme" parent="android:Theme.Holo.NoActionBar.Fullscreen"/>
   <style name="CaptureTheme" parent="android:Theme.Holo">
     <item name="android:windowFullscreen">true</item>
     <item name="android:windowContentOverlay">@null</item>

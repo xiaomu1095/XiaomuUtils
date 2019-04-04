@@ -16,14 +16,13 @@
     <uses-feature android:name="android.hardware.camera.flash" android:required="false"/>
     <uses-feature android:name="android.hardware.wifi" android:required="false"/>
 
-    <application android:icon="@drawable/launcher_icon"
-        android:logo="@drawable/launcher_icon"
+    <application
         android:label="@string/app_name"
         android:allowBackup="true">
         <activity android:name="com.xiaomu.zxinglib.CaptureActivity"
             android:clearTaskOnLaunch="true"
             android:stateNotNeeded="true"
-            android:theme="@style/CaptureTheme"
+            android:theme="@style/zxing_capture_theme"
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="com.google.zxing.client.android.SCAN"/>
