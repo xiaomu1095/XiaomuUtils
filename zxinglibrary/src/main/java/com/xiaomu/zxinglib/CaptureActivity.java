@@ -28,12 +28,11 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.xiaomu.zxinglib.camera.CameraManager;
-import com.xiaomu.zxinglib.clipboard.ClipboardInterface;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
+import com.xiaomu.zxinglib.camera.CameraManager;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -60,7 +59,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private TextView statusView;
   private Result lastResult;
   private boolean hasSurface;
-  private boolean copyToClipboard;
   private IntentSource source;
   private Collection<BarcodeFormat> decodeFormats;
   private Map<DecodeHintType,?> decodeHints;
@@ -149,8 +147,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     ambientLightManager.start(cameraManager);
 
     Intent intent = getIntent();
-
-    copyToClipboard = true;
 
     source = IntentSource.NONE;
     decodeFormats = null;
@@ -380,8 +376,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
   // Put up our own UI for how to handle the decoded contents.
   private void handleDecodeInternally(Result rawResult, Bitmap barcode) {
-    maybeSetClipboard(rawResult);
-
     statusView.setVisibility(View.GONE);
     viewfinderView.setVisibility(View.GONE);
 
@@ -389,12 +383,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     Toast.makeText(this, displayContents, Toast.LENGTH_SHORT).show();
   }
 
-  private void maybeSetClipboard(Result rawResult) {
-    if (copyToClipboard) {
-      ClipboardInterface.setText(rawResult.getText(), this);
-    }
-  }
-  
   private void initCamera(SurfaceHolder surfaceHolder) {
     if (surfaceHolder == null) {
       throw new IllegalStateException("No SurfaceHolder provided");
@@ -414,8 +402,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
       Log.w(TAG, ioe);
       displayFrameworkBugMessageAndExit();
     } catch (RuntimeException e) {
-      // Barcode Scanner has seen crashes in the wild of this variety:
-      // java.?lang.?RuntimeException: Fail to connect to camera service
+      // Barcode Scanner has seen crashes in the wild of this variety: Fail to connect to camera service
       Log.w(TAG, "Unexpected error initializing camera", e);
       displayFrameworkBugMessageAndExit();
     }
