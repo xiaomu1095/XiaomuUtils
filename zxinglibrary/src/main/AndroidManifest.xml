@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dyz.pumei.zxinglibrary" >
+    package="com.xiaomu.zxinglib" >
 
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -20,7 +20,7 @@
         android:logo="@drawable/launcher_icon"
         android:label="@string/app_name"
         android:allowBackup="true">
-        <activity android:name=".CaptureActivity"
+        <activity android:name="com.xiaomu.zxinglib.CaptureActivity"
             android:clearTaskOnLaunch="true"
             android:stateNotNeeded="true"
             android:theme="@style/CaptureTheme"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.dyz.pumei.xiaomuutilapplication">
+    package="com.xiaomu.xiaomuutilapplication">
 
     <application
         android:allowBackup="true"
@@ -13,7 +13,7 @@
         android:logo="@drawable/launcher_icon"
         tools:replace="android:icon,android:logo,android:label,android:allowBackup"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.xiaomu.xiaomuutilapplication.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
