@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.3.10'
+    ext.kotlin_version = '1.3.21'
     repositories {
         google()
         jcenter()
@@ -11,6 +11,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath 'com.novoda:bintray-release:0.9'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -23,8 +24,23 @@ allprojects {
         jcenter()
     }
 
-    ext.androidBuildTools = '28.0.3'
-    ext.androidTargetSdk = 27
+    tasks.withType(Javadoc) {
+        options{ encoding "UTF-8"
+            charSet 'UTF-8'
+            links "http://docs.oracle.com/javase/7/docs/api"
+        }
+    }
+
+    ext {
+        androidBuildTools = '28.0.3'
+        androidTargetSdk = 27
+        userOrg = "xiaomu1095"
+        repoName = "XiaomuUtils"
+        groupId = "com.xiaomu"
+        desc = "useful tool for android"
+        website = "https://github.com/xiaomu1095/XiaomuUtils"
+        licences = ["Apache-2.0"]
+    }
 
 }
 
