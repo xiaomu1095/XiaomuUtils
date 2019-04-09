@@ -17,12 +17,10 @@
 package com.xiaomu.zxinglib;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.preference.PreferenceManager;
 
 import com.xiaomu.zxinglib.camera.CameraManager;
 import com.xiaomu.zxinglib.camera.FrontLightMode;
@@ -48,8 +46,8 @@ final class AmbientLightManager implements SensorEventListener {
 
     void start(CameraManager cameraManager) {
         this.cameraManager = cameraManager;
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        if (FrontLightMode.readPref(sharedPrefs) == FrontLightMode.AUTO) {
+//        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if (FrontLightMode.readPref(null) == FrontLightMode.AUTO) {
             SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
             if (sensorManager != null) {
                 lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
