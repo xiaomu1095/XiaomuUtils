@@ -4,7 +4,7 @@ apply plugin: 'com.novoda.bintray-release'
 publish {
     artifactId = "zxinglib"
     uploadName = "XMzxinglib"
-    publishVersion = "1.0.0"
+    publishVersion = "1.0.1"
     repoName = rootProject.ext.repoName
     userOrg = rootProject.ext.userOrg
     groupId = rootProject.ext.groupId
