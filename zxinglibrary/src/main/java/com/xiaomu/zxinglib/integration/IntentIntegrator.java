@@ -16,24 +16,21 @@
 
 package com.xiaomu.zxinglib.integration;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Fragment;
+import android.content.Intent;
+import android.os.Bundle;
+
+import com.xiaomu.zxinglib.CaptureActivity;
+import com.xiaomu.zxinglib.Intents;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Fragment;
-import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
 
 /**
  * <p>A utility class which helps ease integration with Barcode Scanner via {@link Intent}s. This is a simple
@@ -76,10 +73,6 @@ import android.util.Log;
  * In particular, ideally, the app dismisses the dialog if it's still active in its {@link Activity#onPause()}
  * method.</p>
  * 
- * <p>You can use {@link #setTitle(String)} to customize the title of this download prompt dialog (or, use
- * {@link #setTitleByID(int)} to set the title by string resource ID.) Likewise, the prompt message, and
- * yes/no button labels can be changed.</p>
- *
  * <p>Finally, you can use {@link #addExtra(String, Object)} to add more parameters to the Intent used
  * to invoke the scanner. This can be used to set additional options not directly exposed by this
  * simplified API.</p>
@@ -87,12 +80,6 @@ import android.util.Log;
  * <p>By default, this will only allow applications that are known to respond to this intent correctly
  * do so. The apps that are allowed to response can be set with {@link #setTargetApplications(List)}.
  * For example, set to {@link #TARGET_BARCODE_SCANNER_ONLY} to only target the Barcode Scanner app itself.</p>
- *
- * <h2>Sharing text via barcode</h2>
- *
- * <p>To share text, encoded as a QR Code on-screen, similarly, see {@link #shareText(CharSequence)}.</p>
- *
- * <p>Some code, particularly download integration, was contributed from the Anobiit application.</p>
  *
  * <h2>Enabling experimental barcode formats</h2>
  *
@@ -112,14 +99,8 @@ public class IntentIntegrator {
   public static final int REQUEST_CODE = 0x0000c0de; // Only use bottom 16 bits
   private static final String TAG = IntentIntegrator.class.getSimpleName();
 
-  public static final String DEFAULT_TITLE = "Install Barcode Scanner?";
-  public static final String DEFAULT_MESSAGE =
-      "This application requires Barcode Scanner. Would you like to install it?";
-  public static final String DEFAULT_YES = "Yes";
-  public static final String DEFAULT_NO = "No";
-
-  private static final String BS_PACKAGE = "com.google.zxing.client.android";
-  private static final String BSPLUS_PACKAGE = "com.srowen.bs.android";
+  private static final String BS_PACKAGE = "com.xiaomu.zxinglib";
+  private static final String BSPLUS_PACKAGE = "com.dyz.pumei.xiaomuutilapplication";
 
   // supported barcode formats
   public static final Collection<String> PRODUCT_CODE_TYPES = list("UPC_A", "UPC_E", "EAN_8", "EAN_13", "RSS_14");
@@ -134,9 +115,7 @@ public class IntentIntegrator {
   public static final List<String> TARGET_BARCODE_SCANNER_ONLY = Collections.singletonList(BS_PACKAGE);
   public static final List<String> TARGET_ALL_KNOWN = list(
           BSPLUS_PACKAGE,             // Barcode Scanner+
-          BSPLUS_PACKAGE + ".simple", // Barcode Scanner+ Simple
-          BS_PACKAGE                  // Barcode Scanner          
-          // What else supports this intent?
+          BS_PACKAGE                  // Barcode Scanner
       );
 
   // Should be FLAG_ACTIVITY_NEW_DOCUMENT in API 21+.
@@ -146,13 +125,10 @@ public class IntentIntegrator {
   private final Activity activity;
   private final Fragment fragment;
 
-  private String title;
-  private String message;
-  private String buttonYes;
-  private String buttonNo;
   private List<String> targetApplications;
   private final Map<String,Object> moreExtras = new HashMap<String,Object>(3);
 
+  private Class<?> captureActivity;
   /**
    * @param activity {@link Activity} invoking the integration
    */
@@ -174,59 +150,7 @@ public class IntentIntegrator {
   }
 
   private void initializeConfiguration() {
-    title = DEFAULT_TITLE;
-    message = DEFAULT_MESSAGE;
-    buttonYes = DEFAULT_YES;
-    buttonNo = DEFAULT_NO;
     targetApplications = TARGET_ALL_KNOWN;
-  }
-  
-  public String getTitle() {
-    return title;
-  }
-  
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public void setTitleByID(int titleID) {
-    title = activity.getString(titleID);
-  }
-
-  public String getMessage() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  public void setMessageByID(int messageID) {
-    message = activity.getString(messageID);
-  }
-
-  public String getButtonYes() {
-    return buttonYes;
-  }
-
-  public void setButtonYes(String buttonYes) {
-    this.buttonYes = buttonYes;
-  }
-
-  public void setButtonYesByID(int buttonYesID) {
-    buttonYes = activity.getString(buttonYesID);
-  }
-
-  public String getButtonNo() {
-    return buttonNo;
-  }
-
-  public void setButtonNo(String buttonNo) {
-    this.buttonNo = buttonNo;
-  }
-
-  public void setButtonNoByID(int buttonNoID) {
-    buttonNo = activity.getString(buttonNoID);
   }
   
   public Collection<String> getTargetApplications() {
@@ -297,7 +221,8 @@ public class IntentIntegrator {
    *   if a prompt was needed, or null otherwise
    */
   public final AlertDialog initiateScan(Collection<String> desiredBarcodeFormats, int cameraId) {
-    Intent intentScan = new Intent(BS_PACKAGE + ".SCAN");
+    Intent intentScan = new Intent(activity, getCaptureActivity());
+    intentScan.setAction(Intents.Scan.ACTION);
     intentScan.addCategory(Intent.CATEGORY_DEFAULT);
 
     // check which types of codes to scan for
@@ -310,24 +235,30 @@ public class IntentIntegrator {
         }
         joinedByComma.append(format);
       }
-      intentScan.putExtra("SCAN_FORMATS", joinedByComma.toString());
+      intentScan.putExtra(Intents.Scan.FORMATS, joinedByComma.toString());
     }
 
     // check requested camera ID
     if (cameraId >= 0) {
-      intentScan.putExtra("SCAN_CAMERA_ID", cameraId);
+      intentScan.putExtra(Intents.Scan.CAMERA_ID, cameraId);
     }
 
-    String targetAppPackage = findTargetAppPackage(intentScan);
-    if (targetAppPackage == null) {
-      return showDownloadDialog();
-    }
-    intentScan.setPackage(targetAppPackage);
     intentScan.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     intentScan.addFlags(FLAG_NEW_DOC);
     attachMoreExtras(intentScan);
     startActivityForResult(intentScan, REQUEST_CODE);
     return null;
+  }
+
+  protected Class<?> getDefaultCaptureActivity() {
+    return CaptureActivity.class;
+  }
+
+  public Class<?> getCaptureActivity() {
+    if (captureActivity == null) {
+      captureActivity = getDefaultCaptureActivity();
+    }
+    return captureActivity;
   }
 
   /**
@@ -347,64 +278,6 @@ public class IntentIntegrator {
     }
   }
   
-  private String findTargetAppPackage(Intent intent) {
-    PackageManager pm = activity.getPackageManager();
-    List<ResolveInfo> availableApps = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-    if (availableApps != null) {
-      for (String targetApp : targetApplications) {
-        if (contains(availableApps, targetApp)) {
-          return targetApp;
-        }
-      }
-    }
-    return null;
-  }
-  
-  private static boolean contains(Iterable<ResolveInfo> availableApps, String targetApp) {
-    for (ResolveInfo availableApp : availableApps) {
-      String packageName = availableApp.activityInfo.packageName;
-      if (targetApp.equals(packageName)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private AlertDialog showDownloadDialog() {
-    AlertDialog.Builder downloadDialog = new AlertDialog.Builder(activity);
-    downloadDialog.setTitle(title);
-    downloadDialog.setMessage(message);
-    downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialogInterface, int i) {
-        String packageName;
-        if (targetApplications.contains(BS_PACKAGE)) {
-          // Prefer to suggest download of BS if it's anywhere in the list
-          packageName = BS_PACKAGE;
-        } else {
-          // Otherwise, first option:
-          packageName = targetApplications.get(0);
-        }
-        Uri uri = Uri.parse("market://details?id=" + packageName);
-        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        try {
-          if (fragment == null) {
-            activity.startActivity(intent);
-          } else {
-            fragment.startActivity(intent);
-          }
-        } catch (ActivityNotFoundException anfe) {
-          // Hmm, market is not installed
-          Log.w(TAG, "Google Play is not installed; cannot install " + packageName);
-        }
-      }
-    });
-    downloadDialog.setNegativeButton(buttonNo, null);
-    downloadDialog.setCancelable(true);
-    return downloadDialog.show();
-  }
-
-
   /**
    * <p>Call this from your {@link Activity}'s
    * {@link Activity#onActivityResult(int, int, Intent)} method.</p>
@@ -419,12 +292,12 @@ public class IntentIntegrator {
   public static IntentResult parseActivityResult(int requestCode, int resultCode, Intent intent) {
     if (requestCode == REQUEST_CODE) {
       if (resultCode == Activity.RESULT_OK) {
-        String contents = intent.getStringExtra("SCAN_RESULT");
-        String formatName = intent.getStringExtra("SCAN_RESULT_FORMAT");
-        byte[] rawBytes = intent.getByteArrayExtra("SCAN_RESULT_BYTES");
-        int intentOrientation = intent.getIntExtra("SCAN_RESULT_ORIENTATION", Integer.MIN_VALUE);
+        String contents = intent.getStringExtra(Intents.Scan.RESULT);
+        String formatName = intent.getStringExtra(Intents.Scan.RESULT_FORMAT);
+        byte[] rawBytes = intent.getByteArrayExtra(Intents.Scan.RESULT_BYTES);
+        int intentOrientation = intent.getIntExtra(Intents.Scan.RESULT_ORIENTATION, Integer.MIN_VALUE);
         Integer orientation = intentOrientation == Integer.MIN_VALUE ? null : intentOrientation;
-        String errorCorrectionLevel = intent.getStringExtra("SCAN_RESULT_ERROR_CORRECTION_LEVEL");
+        String errorCorrectionLevel = intent.getStringExtra(Intents.Scan.RESULT_ERROR_CORRECTION_LEVEL);
         return new IntentResult(contents,
                                 formatName,
                                 rawBytes,
@@ -436,50 +309,6 @@ public class IntentIntegrator {
     return null;
   }
 
-
-  /**
-   * Defaults to type "TEXT_TYPE".
-   *
-   * @param text the text string to encode as a barcode
-   * @return the {@link AlertDialog} that was shown to the user prompting them to download the app
-   *   if a prompt was needed, or null otherwise
-   * @see #shareText(CharSequence, CharSequence)
-   */
-  public final AlertDialog shareText(CharSequence text) {
-    return shareText(text, "TEXT_TYPE");
-  }
-
-  /**
-   * Shares the given text by encoding it as a barcode, such that another user can
-   * scan the text off the screen of the device.
-   *
-   * @param text the text string to encode as a barcode
-   * @param type type of data to encode. See {@code com.google.zxing.client.android.Contents.Type} constants.
-   * @return the {@link AlertDialog} that was shown to the user prompting them to download the app
-   *   if a prompt was needed, or null otherwise
-   */
-  public final AlertDialog shareText(CharSequence text, CharSequence type) {
-    Intent intent = new Intent();
-    intent.addCategory(Intent.CATEGORY_DEFAULT);
-    intent.setAction(BS_PACKAGE + ".ENCODE");
-    intent.putExtra("ENCODE_TYPE", type);
-    intent.putExtra("ENCODE_DATA", text);
-    String targetAppPackage = findTargetAppPackage(intent);
-    if (targetAppPackage == null) {
-      return showDownloadDialog();
-    }
-    intent.setPackage(targetAppPackage);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    intent.addFlags(FLAG_NEW_DOC);
-    attachMoreExtras(intent);
-    if (fragment == null) {
-      activity.startActivity(intent);
-    } else {
-      fragment.startActivity(intent);
-    }
-    return null;
-  }
-  
   private static List<String> list(String... values) {
     return Collections.unmodifiableList(Arrays.asList(values));
   }

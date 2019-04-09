@@ -25,7 +25,7 @@
             android:theme="@style/zxing_capture_theme"
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
-                <action android:name="com.google.zxing.client.android.SCAN"/>
+                <action android:name="com.xiaomu.zxinglib.SCAN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
